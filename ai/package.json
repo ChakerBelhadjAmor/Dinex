@@ -1,7 +1,7 @@
 {
   "name": "flousna-ai",
   "version": "1.0.0",
-  "description": "Flousna AI chatbot service with Gemini",
+  "description": "Dinex AI chatbot service with Gemini",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -34,8 +34,10 @@ export default function LoginScreen() {
   return (
     <div className="app-container">
       <div className="login-screen">
-        <div className="login-logo">F</div>
-        <h1 className="login-title">Flousna</h1>
+        <div className="login-logo">
+          <img src="/dinex_logo.png" alt="Dinex logo" className="brand-logo-image" />
+        </div>
+        <h1 className="login-title">Dinex</h1>
         <p className="login-subtitle">Floussek f jibek, fil telephone</p>
 
         <form className="login-form" onSubmit={handleSubmit}>

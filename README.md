@@ -1,8 +1,8 @@
-# Flousna - فلوسنا
+# Dinex
 
 **"Floussek f jibek, fil telephone"** — Your money in your pocket, in your phone.
 
-A fintech app built for Tunisia, designed to make digital payments feel easier than cash. Inspired by apps like Finari, Flousna targets the ~60% of the Tunisian population that still relies on cash by offering a **chat-first, Tunisian dialect (Derja) experience** that feels like WhatsApp + Banking.
+A fintech app built for Tunisia, designed to make digital payments feel easier than cash. Inspired by apps like Finari, Dinex targets the ~60% of the Tunisian population that still relies on cash by offering a **chat-first, Tunisian dialect (Derja) experience** that feels like WhatsApp + Banking.
 
 ---
 
@@ -292,7 +292,7 @@ The chatbot is the **primary interface** of the app. It understands Tunisian dia
 ## Screens
 
 1. **Login** — Phone number + PIN, dark theme, demo credentials shown
-2. **Chat (Main)** — WhatsApp-style chat with the Flousna bot, typing indicators, confirm/cancel buttons for actions
+2. **Chat (Main)** — WhatsApp-style chat with the Dinex bot, typing indicators, confirm/cancel buttons for actions
 3. **Dashboard (Dar)** — Balance card with gradient, quick action buttons, recent transactions list
 4. **Send Money (Ab3ath)** — Choose send or add money, amount input with preset buttons, phone number input, success confirmation
 5. **History (Tarikh)** — Full transaction list grouped by date, filter tabs (All/Sent/Received)

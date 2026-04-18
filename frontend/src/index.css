@@ -1,25 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --bg-primary: #0a0a1a;
-  --bg-secondary: #111128;
-  --bg-card: #1a1a35;
-  --bg-card-hover: #222250;
-  --bg-input: #141430;
-  --accent: #00d4aa;
-  --accent-dim: #00a888;
-  --accent-glow: rgba(0, 212, 170, 0.15);
-  --accent-secondary: #7c5cfc;
-  --accent-secondary-dim: #6a4ce0;
-  --text-primary: #ffffff;
-  --text-secondary: #8888aa;
-  --text-muted: #555577;
+  --bg-primary: #0a0a12;
+  --bg-secondary: #10101a;
+  --bg-card: #13131f;
+  --bg-card-hover: #1c1c2a;
+  --bg-input: #171725;
+  --accent: #f97066;
+  --accent-dim: #ef5a4f;
+  --accent-glow: rgba(249, 112, 102, 0.18);
+  --accent-secondary: #fb923c;
+  --accent-secondary-dim: #ea7d23;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
   --danger: #ff4466;
-  --success: #00d4aa;
+  --success: #fb923c;
   --warning: #ffaa33;
-  --border: #2a2a4a;
+  --border: #242436;
   --shadow: rgba(0, 0, 0, 0.4);
   --radius: 16px;
   --radius-sm: 10px;
   --radius-lg: 24px;
+  --font-plus-jakarta: 'Plus Jakarta Sans';
 }
 
 * {
@@ -29,7 +32,7 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-plus-jakarta), sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -42,7 +45,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #0a0a1a 0%, #0d0d25 50%, #0a0a1a 100%);
+  background: radial-gradient(circle at 15% 15%, rgba(249, 112, 102, 0.14) 0%, transparent 36%),
+              radial-gradient(circle at 85% 0%, rgba(251, 146, 60, 0.12) 0%, transparent 42%),
+              linear-gradient(135deg, #0a0a12 0%, #0e0e18 50%, #0a0a12 100%);
 }
 
 /* App Container - Mobile-first */
@@ -62,7 +67,7 @@ body {
     border-radius: 32px;
     border: 1px solid var(--border);
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
-                0 0 60px rgba(0, 212, 170, 0.05);
+                0 0 60px rgba(249, 112, 102, 0.08);
   }
 }
 
@@ -116,7 +121,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  background: linear-gradient(180deg, var(--bg-primary) 0%, #0d0d2a 100%);
+  background: linear-gradient(180deg, var(--bg-primary) 0%, #0d0d18 100%);
 }
 
 .login-logo {
@@ -130,7 +135,7 @@ body {
   font-size: 36px;
   font-weight: 800;
   margin-bottom: 16px;
-  box-shadow: 0 8px 32px rgba(0, 212, 170, 0.3);
+  box-shadow: 0 8px 32px rgba(249, 112, 102, 0.35);
 }
 
 .login-title {
@@ -203,7 +208,7 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0, 212, 170, 0.4);
+  box-shadow: 0 4px 20px rgba(249, 112, 102, 0.45);
 }
 
 .btn-primary:active {
@@ -277,6 +282,12 @@ body {
   color: #000;
 }
 
+.brand-logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .header-user {
   display: flex;
   align-items: center;
@@ -310,7 +321,7 @@ body {
   align-items: center;
   justify-content: space-around;
   padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-  background: rgba(10, 10, 26, 0.95);
+  background: rgba(10, 10, 18, 0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   z-index: 100;
@@ -517,7 +528,7 @@ body {
 
 .chat-send-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 2px 12px rgba(0, 212, 170, 0.4);
+  box-shadow: 0 2px 12px rgba(249, 112, 102, 0.4);
 }
 
 .chat-send-btn:disabled {
@@ -533,7 +544,7 @@ body {
 }
 
 .balance-card {
-  background: linear-gradient(135deg, #1a1a45 0%, #0d0d30 100%);
+  background: linear-gradient(135deg, #171726 0%, #10101b 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 28px 24px;
@@ -667,7 +678,7 @@ body {
 }
 
 .tx-icon.receive {
-  background: rgba(0, 212, 170, 0.12);
+  background: rgba(251, 146, 60, 0.14);
   color: var(--success);
 }
 
@@ -753,7 +764,7 @@ body {
 .send-success-icon {
   width: 80px;
   height: 80px;
-  background: rgba(0, 212, 170, 0.15);
+  background: rgba(249, 112, 102, 0.15);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -863,8 +874,8 @@ body {
 }
 
 .advice-card {
-  background: linear-gradient(135deg, rgba(0, 212, 170, 0.08), rgba(124, 92, 252, 0.08));
-  border: 1px solid rgba(0, 212, 170, 0.2);
+  background: linear-gradient(135deg, rgba(249, 112, 102, 0.1), rgba(251, 146, 60, 0.1));
+  border: 1px solid rgba(249, 112, 102, 0.25);
   border-radius: var(--radius);
   padding: 16px;
   margin-top: 16px;
@@ -997,6 +1008,63 @@ body {
   font-weight: 600;
 }
 
-.badge.success { background: rgba(0, 212, 170, 0.15); color: var(--success); }
+.badge.success { background: rgba(251, 146, 60, 0.2); color: var(--success); }
 .badge.warning { background: rgba(255, 170, 51, 0.15); color: var(--warning); }
 .badge.danger { background: rgba(255, 68, 102, 0.15); color: var(--danger); }
+
+/* ─── PROFILE SCREEN ─────────────────────────────────────── */
+
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 8px;
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 12px;
+}
+
+.profile-name-display {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.profile-phone-display {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.profile-logout-btn {
+  width: 100%;
+  margin-top: 32px;
+  padding: 16px;
+  background: rgba(255, 68, 102, 0.08);
+  border: 1px solid rgba(255, 68, 102, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.2s;
+}
+
+.profile-logout-btn:hover {
+  background: rgba(255, 68, 102, 0.15);
+}

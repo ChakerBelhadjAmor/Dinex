@@ -37,7 +37,9 @@ export default function InsightsScreen() {
       <>
         <div className="header">
           <div className="header-logo">
-            <div className="header-logo-icon">F</div>
+            <div className="header-logo-icon">
+              <img src="/dinex_logo.png" alt="Dinex logo" className="brand-logo-image" />
+            </div>
             <div className="header-title">Tahlil</div>
           </div>
         </div>
@@ -53,6 +55,33 @@ export default function InsightsScreen() {
     value: cat.amount,
     rawName: cat.name,
   })) || [];
+
+  const totalChartSpent = chartData.reduce((sum, item) => sum + item.value, 0);
+
+  function renderChartTooltip({ active, payload }) {
+    if (!active || !payload || payload.length === 0) return null;
+
+    const point = payload[0];
+    const amount = Number(point.value) || 0;
+    const percentage = totalChartSpent > 0 ? (amount / totalChartSpent) * 100 : 0;
+
+    return (
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: '10px',
+          color: 'var(--text-primary)',
+          padding: '10px 12px',
+          boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>{point.name}</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Masrouf: {amount.toFixed(2)} DT</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Pourcentage: {percentage.toFixed(1)}%</div>
+      </div>
+    );
+  }
 
   function getAdvice() {
     if (!insights || !insights.topCategory) return '';
@@ -73,7 +102,9 @@ export default function InsightsScreen() {
     <>
       <div className="header">
         <div className="header-logo">
-          <div className="header-logo-icon">F</div>
+          <div className="header-logo-icon">
+            <img src="/dinex_logo.png" alt="Dinex logo" className="brand-logo-image" />
+          </div>
           <div className="header-title">Tahlil</div>
         </div>
       </div>
@@ -121,13 +152,7 @@ export default function InsightsScreen() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => [`${value.toFixed(2)} DT`]}
-                    contentStyle={{
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      color: 'var(--text-primary)',
-                    }}
+                    content={renderChartTooltip}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -159,7 +184,7 @@ export default function InsightsScreen() {
 
         {/* Advice Card */}
         <div className="advice-card slide-up">
-          <strong>💡 Conseil min Flousna:</strong>
+          <strong>💡 Conseil min Dinex:</strong>
           <br /><br />
           {getAdvice()}
         </div>

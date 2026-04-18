@@ -11,7 +11,7 @@ app.use(express.json());
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'flousna-backend' });
+  res.json({ status: 'ok', service: 'dinex-backend' });
 });
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
@@ -131,6 +131,46 @@ app.get('/api/insights/summary', authenticateToken, async (req, res) => {
   }
 });
 
+// ─── PROFILE ────────────────────────────────────────────────────────────────
+
+app.get('/api/users/profile', authenticateToken, async (req, res) => {
+  try {
+    const user = await store.getUserById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur introuvable' });
+    }
+    res.json({ id: user.id, name: user.name, phone: user.phone });
+  } catch (err) {
+    console.error('Profile error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
+  }
+});
+
+app.put('/api/users/profile', authenticateToken, async (req, res) => {
+  const { name, phone, pin } = req.body;
+
+  if (name !== undefined && (!name || name.trim().length < 2)) {
+    return res.status(400).json({ error: 'Esm lazem ykoun 2 7rouf wala akther' });
+  }
+  if (phone !== undefined && (!phone || phone.length < 8)) {
+    return res.status(400).json({ error: 'Numero telephone lazem ykoun 8 chiffres' });
+  }
+  if (pin !== undefined && (!pin || pin.length < 4)) {
+    return res.status(400).json({ error: 'Code PIN lazem ykoun 4 chiffres' });
+  }
+
+  try {
+    const result = await store.updateUser(req.user.id, { name, phone, pin });
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('Profile update error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
+  }
+});
+
 // ─── USER LOOKUP (for AI service) ───────────────────────────────────────────
 
 app.get('/api/users/lookup/:phone', authenticateToken, async (req, res) => {
@@ -149,5 +189,5 @@ app.get('/api/users/lookup/:phone', authenticateToken, async (req, res) => {
 // ─── START ───────────────────────────────────────────────────────────────────
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Flousna Backend running on port ${PORT}`);
+  console.log(`Dinex Backend running on port ${PORT}`);
 });

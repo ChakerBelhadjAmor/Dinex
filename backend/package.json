@@ -1,7 +1,7 @@
 {
   "name": "flousna-backend",
   "version": "1.0.0",
-  "description": "Flousna fintech backend API",
+  "description": "Dinex fintech backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

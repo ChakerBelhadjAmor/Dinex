@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Plus, ArrowUpRight, ArrowDownLeft, LogOut } from 'lucide-react';
+import { Send, Plus, ArrowUpRight, ArrowDownLeft, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getBalance, getTransactions } from '../services/api';
 
@@ -17,7 +17,7 @@ const categoryIcons = {
 };
 
 export default function DashboardScreen() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [balance, setBalance] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -45,13 +45,15 @@ export default function DashboardScreen() {
     <>
       <div className="header">
         <div className="header-logo">
-          <div className="header-logo-icon">F</div>
+          <div className="header-logo-icon">
+            <img src="/dinex_logo.png" alt="Dinex logo" className="brand-logo-image" />
+          </div>
           <div className="header-title">Dar</div>
         </div>
         <div className="header-user">
           <span>{user?.name}</span>
-          <button className="header-avatar" onClick={logout} title="Deconnexion">
-            <LogOut size={16} />
+          <button className="header-avatar" onClick={() => navigate('/profile')} title="El profil mta3i">
+            <User size={16} />
           </button>
         </div>
       </div>

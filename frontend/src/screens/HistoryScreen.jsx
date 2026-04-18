@@ -67,7 +67,9 @@ export default function HistoryScreen() {
     <>
       <div className="header">
         <div className="header-logo">
-          <div className="header-logo-icon">F</div>
+          <div className="header-logo-icon">
+            <img src="/dinex_logo.png" alt="Dinex logo" className="brand-logo-image" />
+          </div>
           <div className="header-title">Tarikh</div>
         </div>
       </div>

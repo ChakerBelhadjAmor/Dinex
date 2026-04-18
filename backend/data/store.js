@@ -188,6 +188,49 @@ async function getInsights(userId) {
   };
 }
 
+async function updateUser(userId, updates) {
+  const fields = [];
+  const values = [];
+  let idx = 1;
+
+  if (updates.name !== undefined) {
+    fields.push(`name = $${idx++}`);
+    values.push(updates.name);
+  }
+  if (updates.phone !== undefined) {
+    fields.push(`phone = $${idx++}`);
+    values.push(updates.phone);
+  }
+  if (updates.pin !== undefined) {
+    fields.push(`pin = $${idx++}`);
+    values.push(updates.pin);
+  }
+
+  if (fields.length === 0) {
+    return { success: false, error: 'Rien à modifier' };
+  }
+
+  values.push(userId);
+
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx}`,
+      values
+    );
+    if (rowCount === 0) {
+      return { success: false, error: 'Utilisateur introuvable' };
+    }
+    const user = await getUserById(userId);
+    return { success: true, user: { id: user.id, name: user.name, phone: user.phone } };
+  } catch (err) {
+    if (err.code === '23505') {
+      return { success: false, error: 'Ce numero est deja utilisé' };
+    }
+    console.error('updateUser error:', err.message);
+    return { success: false, error: 'Erreur interne' };
+  }
+}
+
 module.exports = {
   getUserByPhone,
   getUserById,
@@ -195,5 +238,6 @@ module.exports = {
   getBalance,
   sendMoney,
   addMoney,
-  getInsights
+  getInsights,
+  updateUser
 };

@@ -26,7 +26,7 @@ const conversations = new Map();
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'flousna-ai', geminiConnected: !!model });
+  res.json({ status: 'ok', service: 'dinex-ai', geminiConnected: !!model });
 });
 
 // ─── FALLBACK RESPONSES (when no Gemini key) ─────────────────────────────────
@@ -37,7 +37,7 @@ function getFallbackResponse(message) {
   if (msg.includes('ahla') || msg.includes('hello') || msg.includes('salam') || msg.includes('hi')) {
     return {
       intent: 'GREETING',
-      message: 'Ahla bik fi Flousna! 👋 Ena el assistant mta3ek, na3mel lik kol chay thebb. Nheb nchouflek el balance? Wala tab3ath flous? 9ouli chnoua thebb!',
+      message: 'Ahla bik fi Dinex! 👋 Ena el assistant mta3ek, na3mel lik kol chay thebb. Nheb nchouflek el balance? Wala tab3ath flous? 9ouli chnoua thebb!',
       action: null,
       needsConfirmation: false
     };
@@ -143,7 +143,7 @@ function getFallbackResponse(message) {
   if (msg.includes('chkoun') || msg.includes('chnowa') || msg.includes('help') || msg.includes('mseda') || msg.includes('ki')) {
     return {
       intent: 'HELP',
-      message: 'Ena Flousna, el assistant mta3ek lel flous! 🤖 Najem na3mellek:\n\n💰 Nchouflek el balance\n💸 Nab3ath flous l 7ad\n📋 Nwarrik el historique mta3ek\n📊 Na3tik insights 3al masrouf mta3ek\n\nJarreb 9ouli "9addech ba9a?" wala "nheb nab3ath 50dt"!',
+      message: 'Ena Dinex, el assistant mta3ek lel flous! 🤖 Najem na3mellek:\n\n💰 Nchouflek el balance\n💸 Nab3ath flous l 7ad\n📋 Nwarrik el historique mta3ek\n📊 Na3tik insights 3al masrouf mta3ek\n\nJarreb 9ouli "9addech ba9a?" wala "nheb nab3ath 50dt"!',
       action: null,
       needsConfirmation: false
     };
@@ -380,7 +380,7 @@ app.post('/api/chat/confirm', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Flousna AI Service running on port ${PORT}`);
+  console.log(`Dinex AI Service running on port ${PORT}`);
   console.log(`Backend URL: ${BACKEND_URL}`);
   console.log(`Gemini: ${GEMINI_API_KEY ? 'Connected' : 'Fallback mode'}`);
 });

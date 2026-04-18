@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
 
   function loginUser(userData, userToken) {
     setUser(userData);
-    setToken(userToken);
+    if (userToken) setToken(userToken);
   }
 
   function logout() {

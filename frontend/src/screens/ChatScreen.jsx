@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Send, Bot } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { sendChat, confirmAction } from '../services/api';
 
 const WELCOME_MESSAGE = {
   role: 'bot',
-  text: 'Ahla bik fi Flousna! 👋\n\nEna el assistant mta3ek, hna bech n3awnek fil flous mta3ek. Najem:\n\n💰 Nchouflek el balance\n💸 Nab3ath flous l 7ad\n📋 Nwarrik el historique\n📊 Na3tik conseils\n\n9ouli chnoua thebb!',
+  text: 'Ahla bik fi Dinex! 👋\n\nEna el assistant mta3ek, hna bech n3awnek fil flous mta3ek. Najem:\n\n💰 Nchouflek el balance\n💸 Nab3ath flous l 7ad\n📋 Nwarrik el historique\n📊 Na3tik conseils\n\n9ouli chnoua thebb!',
 };
 
 export default function ChatScreen() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -93,16 +95,18 @@ export default function ChatScreen() {
     <>
       <div className="header">
         <div className="header-logo">
-          <div className="header-logo-icon">F</div>
+          <div className="header-logo-icon">
+            <img src="/dinex_logo.png" alt="Dinex logo" className="brand-logo-image" />
+          </div>
           <div>
-            <div className="header-title">Flousna</div>
+            <div className="header-title">Dinex</div>
           </div>
         </div>
         <div className="header-user">
           <span>{user?.name}</span>
-          <div className="header-avatar">
+          <button className="header-avatar" onClick={() => navigate('/profile')} title="El profil mta3i">
             {user?.name?.[0] || 'U'}
-          </div>
+          </button>
         </div>
       </div>
 
@@ -111,7 +115,7 @@ export default function ChatScreen() {
           {messages.map((msg, i) => (
             <div key={i}>
               <div className={`chat-bubble ${msg.role} fade-in`}>
-                {msg.role === 'bot' && <div className="bubble-name">Flousna 🤖</div>}
+                {msg.role === 'bot' && <div className="bubble-name">Dinex 🤖</div>}
                 {msg.text}
               </div>
               {msg.showConfirm && (

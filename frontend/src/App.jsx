@@ -7,6 +7,7 @@ import DashboardScreen from './screens/DashboardScreen';
 import SendMoneyScreen from './screens/SendMoneyScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import InsightsScreen from './screens/InsightsScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -32,6 +33,7 @@ function AppRoutes() {
         <Route path="/send" element={<SendMoneyScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/insights" element={<InsightsScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
         <Route path="*" element={<Navigate to="/chat" replace />} />
       </Routes>
       <BottomNav />

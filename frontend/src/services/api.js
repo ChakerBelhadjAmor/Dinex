@@ -114,6 +114,29 @@ export async function confirmAction(action) {
   return res.json();
 }
 
+// ─── PROFILE ────────────────────────────────────────────────
+
+export async function getProfile() {
+  const res = await fetch(`${API_URL}/api/users/profile`, {
+    headers: authHeaders()
+  });
+  return res.json();
+}
+
+export async function updateProfile(updates) {
+  const res = await fetch(`${API_URL}/api/users/profile`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(updates)
+  });
+  const data = await res.json();
+  // Update stored user if successful
+  if (data.success && data.user) {
+    localStorage.setItem('flousna_user', JSON.stringify(data.user));
+  }
+  return data;
+}
+
 // ─── USER LOOKUP ────────────────────────────────────────────
 
 export async function lookupUser(phone) {
