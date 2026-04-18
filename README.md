@@ -46,22 +46,23 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 ## Architecture
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Frontend   │────>│  AI Service  │────>│   Backend    │
-│  (React/Vite)│<────│  (Gemini)    │<────│  (Express)   │
-│  Port 5173   │     │  Port 3001   │     │  Port 3000   │
-└─────────────┘     └─────────────┘     └─────────────┘
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Frontend   │────>│  AI Service  │────>│   Backend    │────>│ PostgreSQL  │
+│  (React/Vite)│<────│  (Gemini)    │<────│  (Express)   │<────│   (DB)      │
+│  Port 5173   │     │  Port 3001   │     │  Port 3000   │     │  Port 5432  │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
 **Chatbot Flow:**
 1. User sends a message in Tunisian dialect
 2. AI Service interprets intent (balance check, send money, history, etc.)
 3. AI Service calls Backend API if an action is needed
-4. Response is returned in Derja to the user
+4. Backend queries PostgreSQL database
+5. Response is returned in Derja to the user
 
 **Direct API Flow (Dashboard, Send, History, Insights):**
 1. Frontend calls Backend API directly with JWT auth
-2. Backend returns data from in-memory store
+2. Backend queries PostgreSQL and returns data
 3. Frontend renders the UI
 
 ---
@@ -71,7 +72,8 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 | Layer | Technology |
 |-------|-----------|
 | **Frontend** | React 18, Vite, React Router, Recharts, Lucide Icons |
-| **Backend** | Node.js, Express, JWT authentication |
+| **Backend** | Node.js, Express, JWT authentication, PostgreSQL (pg) |
+| **Database** | PostgreSQL 16 |
 | **AI Service** | Node.js, Express, Google Gemini API (gemini-2.0-flash) |
 | **Containerization** | Docker, Docker Compose |
 
@@ -106,7 +108,10 @@ fintech_hackathon/
 │
 ├── backend/                   # Express API server
 │   ├── data/
-│   │   └── store.js               # In-memory data store (users, transactions)
+│   │   └── store.js               # PostgreSQL data store (users, transactions)
+│   ├── db/
+│   │   ├── pool.js                # PostgreSQL connection pool
+│   │   └── init.sql               # Database schema + seed data
 │   ├── middleware/
 │   │   └── auth.js                # JWT authentication middleware
 │   ├── server.js                  # Express server with all routes
@@ -176,7 +181,18 @@ docker-compose down
 
 ### Without Docker (Manual)
 
-**Prerequisites:** Node.js 18+ installed.
+**Prerequisites:** Node.js 18+ and PostgreSQL 16+ installed.
+
+**Step 0 — Set up PostgreSQL:**
+
+```bash
+# Create the database and user
+sudo -u postgres psql -c "CREATE USER flousna WITH PASSWORD 'flousna123';"
+sudo -u postgres psql -c "CREATE DATABASE flousna OWNER flousna;"
+
+# Run the init script to create tables and seed data
+psql -U flousna -d flousna -f backend/db/init.sql
+```
 
 You need 3 terminal windows, one for each service.
 
@@ -185,6 +201,10 @@ You need 3 terminal windows, one for each service.
 ```bash
 cd backend
 npm install
+
+# Set database connection (or export these)
+export DB_HOST=localhost DB_PORT=5432 DB_NAME=flousna DB_USER=flousna DB_PASSWORD=flousna123
+
 node server.js
 ```
 
@@ -248,10 +268,11 @@ The chatbot is the **primary interface** of the app. It understands Tunisian dia
 
 ### Wallet System
 
-- **Balance** — Each user has a simulated DT (Dinar Tunisien) balance
-- **Transactions** — Stored in memory with type (send/receive), amount, category, description, and date
-- **Send money** — Deducts from sender, adds to recipient (if they exist in the system)
+- **Balance** — Each user has a DT (Dinar Tunisien) balance stored in PostgreSQL
+- **Transactions** — Stored in PostgreSQL with type (send/receive), amount, category, description, and date
+- **Send money** — Uses database transactions (BEGIN/COMMIT) with row-level locking (FOR UPDATE) to safely deduct from sender and add to recipient
 - **Add money** — Simulates depositing money from a bank card
+- **Data persistence** — All data persists across restarts via PostgreSQL (Docker volume `pgdata`)
 
 ### Payments
 
@@ -323,6 +344,11 @@ Ahmed (20123456) has the most transaction history and is the best account for de
 | `GEMINI_API_KEY` | ai-service | No | Google Gemini API key. Fallback responses work without it. Get one at https://aistudio.google.com/apikey |
 | `PORT` | backend, ai | No | Server port (defaults: backend=3000, ai=3001) |
 | `JWT_SECRET` | backend | No | JWT signing secret (default provided for demo) |
+| `DB_HOST` | backend | No | PostgreSQL host (default: localhost, in Docker: db) |
+| `DB_PORT` | backend | No | PostgreSQL port (default: 5432) |
+| `DB_NAME` | backend | No | Database name (default: flousna) |
+| `DB_USER` | backend | No | Database user (default: flousna) |
+| `DB_PASSWORD` | backend | No | Database password (default: flousna123) |
 | `BACKEND_URL` | ai-service | No | Backend URL for AI to call (default: http://localhost:3000, in Docker: http://backend:3000) |
 | `VITE_API_URL` | frontend | No | Backend URL for frontend (default: http://localhost:3000) |
 | `VITE_AI_URL` | frontend | No | AI service URL for frontend (default: http://localhost:3001) |

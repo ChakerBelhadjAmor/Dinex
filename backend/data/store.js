@@ -1,199 +1,194 @@
 const { v4: uuidv4 } = require('uuid');
+const pool = require('../db/pool');
 
-// In-memory data store for hackathon demo
-const users = {
-  '20123456': {
-    id: 'usr_1',
-    phone: '20123456',
-    name: 'Ahmed',
-    pin: '1234',
-    balance: 1500.00,
-    createdAt: '2025-01-15'
-  },
-  '20654321': {
-    id: 'usr_2',
-    phone: '20654321',
-    name: 'Sami',
-    pin: '1234',
-    balance: 850.50,
-    createdAt: '2025-02-20'
-  },
-  '20111222': {
-    id: 'usr_3',
-    phone: '20111222',
-    name: 'Fatma',
-    pin: '1234',
-    balance: 2200.00,
-    createdAt: '2025-01-10'
-  },
-  '20333444': {
-    id: 'usr_4',
-    phone: '20333444',
-    name: 'Mariem',
-    pin: '1234',
-    balance: 430.75,
-    createdAt: '2025-03-01'
-  },
-  '20555666': {
-    id: 'usr_5',
-    phone: '20555666',
-    name: 'Youssef',
-    pin: '1234',
-    balance: 3100.00,
-    createdAt: '2025-01-05'
+async function getUserByPhone(phone) {
+  const { rows } = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
+  return rows[0] || null;
+}
+
+async function getUserById(id) {
+  const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+  return rows[0] || null;
+}
+
+async function getTransactions(userId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC, created_at DESC',
+    [userId]
+  );
+  return rows.map(row => ({
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    amount: parseFloat(row.amount),
+    to: row.to_name,
+    toPhone: row.to_phone,
+    from: row.from_name,
+    fromPhone: row.from_phone,
+    category: row.category,
+    description: row.description,
+    date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
+    status: row.status,
+  }));
+}
+
+async function getBalance(userId) {
+  const user = await getUserById(userId);
+  return user ? parseFloat(user.balance) : null;
+}
+
+async function sendMoney(fromUserId, toPhone, amount, category = 'transfer', description = '') {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: [sender] } = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [fromUserId]);
+    if (!sender) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'Utilisateur introuvable' };
+    }
+    if (parseFloat(sender.balance) < amount) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'Solde insuffisant' };
+    }
+    if (amount <= 0) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'Montant invalide' };
+    }
+
+    const { rows: recipients } = await client.query('SELECT * FROM users WHERE phone = $1 FOR UPDATE', [toPhone]);
+    const recipient = recipients[0] || null;
+    const recipientName = recipient ? recipient.name : toPhone;
+    const today = new Date().toISOString().split('T')[0];
+
+    // Deduct from sender
+    await client.query('UPDATE users SET balance = balance - $1 WHERE id = $2', [amount, fromUserId]);
+
+    // Add to recipient if they exist
+    if (recipient) {
+      await client.query('UPDATE users SET balance = balance + $1 WHERE id = $2', [amount, recipient.id]);
+
+      // Receive transaction for recipient
+      await client.query(
+        `INSERT INTO transactions (id, user_id, type, amount, from_name, from_phone, category, description, date)
+         VALUES ($1, $2, 'receive', $3, $4, $5, $6, $7, $8)`,
+        ['tx_' + uuidv4().slice(0, 8), recipient.id, amount, sender.name, sender.phone, category, description || `Min ${sender.name}`, today]
+      );
+    }
+
+    // Send transaction for sender
+    const txId = 'tx_' + uuidv4().slice(0, 8);
+    await client.query(
+      `INSERT INTO transactions (id, user_id, type, amount, to_name, to_phone, category, description, date)
+       VALUES ($1, $2, 'send', $3, $4, $5, $6, $7, $8)`,
+      [txId, fromUserId, amount, recipientName, toPhone, category, description || `Transfer l ${recipientName}`, today]
+    );
+
+    // Get updated balance
+    const { rows: [updated] } = await client.query('SELECT balance FROM users WHERE id = $1', [fromUserId]);
+
+    await client.query('COMMIT');
+
+    return {
+      success: true,
+      transaction: { id: txId, userId: fromUserId, type: 'send', amount, to: recipientName, toPhone, category, description, date: today, status: 'completed' },
+      newBalance: parseFloat(updated.balance)
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('sendMoney error:', err.message);
+    return { success: false, error: 'Erreur interne' };
+  } finally {
+    client.release();
   }
-};
-
-const transactions = [
-  // Ahmed's transactions
-  { id: 'tx_1', userId: 'usr_1', type: 'send', amount: 50, to: 'Sami', toPhone: '20654321', category: 'food', description: 'Deja fil mekla', date: '2026-04-17', status: 'completed' },
-  { id: 'tx_2', userId: 'usr_1', type: 'receive', amount: 200, from: 'Fatma', fromPhone: '20111222', category: 'transfer', description: 'Remboursement', date: '2026-04-16', status: 'completed' },
-  { id: 'tx_3', userId: 'usr_1', type: 'send', amount: 35, to: 'Carrefour', toPhone: null, category: 'shopping', description: 'Courses Carrefour', date: '2026-04-15', status: 'completed' },
-  { id: 'tx_4', userId: 'usr_1', type: 'send', amount: 15, to: 'Taxi', toPhone: null, category: 'transport', description: 'Taxi lel khedma', date: '2026-04-15', status: 'completed' },
-  { id: 'tx_5', userId: 'usr_1', type: 'send', amount: 120, to: 'STEG', toPhone: null, category: 'bills', description: 'Facture dhaw', date: '2026-04-12', status: 'completed' },
-  { id: 'tx_6', userId: 'usr_1', type: 'send', amount: 25, to: 'Café Sidi Bou', toPhone: null, category: 'food', description: 'Kahwa w croissant', date: '2026-04-11', status: 'completed' },
-  { id: 'tx_7', userId: 'usr_1', type: 'receive', amount: 500, from: 'Youssef', fromPhone: '20555666', category: 'transfer', description: 'Part loyer', date: '2026-04-10', status: 'completed' },
-  { id: 'tx_8', userId: 'usr_1', type: 'send', amount: 80, to: 'Zara', toPhone: null, category: 'shopping', description: 'Hwayej jdod', date: '2026-04-08', status: 'completed' },
-  { id: 'tx_9', userId: 'usr_1', type: 'send', amount: 40, to: 'Cinema', toPhone: null, category: 'entertainment', description: 'Film m3a s7abi', date: '2026-04-06', status: 'completed' },
-  { id: 'tx_10', userId: 'usr_1', type: 'send', amount: 300, to: 'Loyer', toPhone: null, category: 'bills', description: 'Part loyer avril', date: '2026-04-01', status: 'completed' },
-  { id: 'tx_11', userId: 'usr_1', type: 'receive', amount: 2000, from: 'Salaire', fromPhone: null, category: 'income', description: 'Salaire avril', date: '2026-04-01', status: 'completed' },
-  { id: 'tx_12', userId: 'usr_1', type: 'send', amount: 60, to: 'Pharmacie', toPhone: null, category: 'health', description: 'Dwa', date: '2026-03-28', status: 'completed' },
-
-  // Sami's transactions
-  { id: 'tx_20', userId: 'usr_2', type: 'receive', amount: 50, from: 'Ahmed', fromPhone: '20123456', category: 'food', description: 'Min Ahmed lel mekla', date: '2026-04-17', status: 'completed' },
-  { id: 'tx_21', userId: 'usr_2', type: 'send', amount: 100, to: 'Mariem', toPhone: '20333444', category: 'transfer', description: 'Cadeau', date: '2026-04-14', status: 'completed' },
-
-  // Fatma's transactions
-  { id: 'tx_30', userId: 'usr_3', type: 'send', amount: 200, to: 'Ahmed', toPhone: '20123456', category: 'transfer', description: 'Remboursement', date: '2026-04-16', status: 'completed' },
-];
-
-// Helper functions
-function getUserByPhone(phone) {
-  return users[phone] || null;
 }
 
-function getUserById(id) {
-  return Object.values(users).find(u => u.id === id) || null;
-}
+async function addMoney(userId, amount, source = 'Carte bancaire') {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-function getTransactions(userId) {
-  return transactions
-    .filter(t => t.userId === userId)
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-}
+    const { rows: [user] } = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [userId]);
+    if (!user) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'Utilisateur introuvable' };
+    }
+    if (amount <= 0) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'Montant invalide' };
+    }
 
-function getBalance(userId) {
-  const user = getUserById(userId);
-  return user ? user.balance : null;
-}
+    await client.query('UPDATE users SET balance = balance + $1 WHERE id = $2', [amount, userId]);
 
-function sendMoney(fromUserId, toPhone, amount, category = 'transfer', description = '') {
-  const sender = getUserById(fromUserId);
-  if (!sender) return { success: false, error: 'Utilisateur introuvable' };
-  if (sender.balance < amount) return { success: false, error: 'Solde insuffisant' };
-  if (amount <= 0) return { success: false, error: 'Montant invalide' };
+    const txId = 'tx_' + uuidv4().slice(0, 8);
+    const today = new Date().toISOString().split('T')[0];
+    await client.query(
+      `INSERT INTO transactions (id, user_id, type, amount, from_name, category, description, date)
+       VALUES ($1, $2, 'receive', $3, $4, 'deposit', $5, $6)`,
+      [txId, userId, amount, source, `Ajout min ${source}`, today]
+    );
 
-  const recipient = getUserByPhone(toPhone);
-  const recipientName = recipient ? recipient.name : toPhone;
+    const { rows: [updated] } = await client.query('SELECT balance FROM users WHERE id = $1', [userId]);
 
-  // Deduct from sender
-  sender.balance -= amount;
+    await client.query('COMMIT');
 
-  // Add to recipient if they exist
-  if (recipient) {
-    recipient.balance += amount;
-
-    // Create receive transaction for recipient
-    transactions.push({
-      id: 'tx_' + uuidv4().slice(0, 8),
-      userId: recipient.id,
-      type: 'receive',
-      amount,
-      from: sender.name,
-      fromPhone: sender.phone,
-      category,
-      description: description || `Min ${sender.name}`,
-      date: new Date().toISOString().split('T')[0],
-      status: 'completed'
-    });
+    return {
+      success: true,
+      transaction: { id: txId, userId, type: 'receive', amount, from: source, category: 'deposit', description: `Ajout min ${source}`, date: today, status: 'completed' },
+      newBalance: parseFloat(updated.balance)
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('addMoney error:', err.message);
+    return { success: false, error: 'Erreur interne' };
+  } finally {
+    client.release();
   }
-
-  // Create send transaction for sender
-  const tx = {
-    id: 'tx_' + uuidv4().slice(0, 8),
-    userId: fromUserId,
-    type: 'send',
-    amount,
-    to: recipientName,
-    toPhone,
-    category,
-    description: description || `Transfer l ${recipientName}`,
-    date: new Date().toISOString().split('T')[0],
-    status: 'completed'
-  };
-  transactions.push(tx);
-
-  return { success: true, transaction: tx, newBalance: sender.balance };
 }
 
-function addMoney(userId, amount, source = 'Carte bancaire') {
-  const user = getUserById(userId);
-  if (!user) return { success: false, error: 'Utilisateur introuvable' };
-  if (amount <= 0) return { success: false, error: 'Montant invalide' };
+async function getInsights(userId) {
+  const { rows: spentRows } = await pool.query(
+    `SELECT category, SUM(amount) as total
+     FROM transactions
+     WHERE user_id = $1 AND type = 'send'
+     GROUP BY category
+     ORDER BY total DESC`,
+    [userId]
+  );
 
-  user.balance += amount;
+  const { rows: [receivedRow] } = await pool.query(
+    `SELECT COALESCE(SUM(amount), 0) as total
+     FROM transactions
+     WHERE user_id = $1 AND type = 'receive'`,
+    [userId]
+  );
 
-  const tx = {
-    id: 'tx_' + uuidv4().slice(0, 8),
-    userId,
-    type: 'receive',
-    amount,
-    from: source,
-    fromPhone: null,
-    category: 'deposit',
-    description: `Ajout min ${source}`,
-    date: new Date().toISOString().split('T')[0],
-    status: 'completed'
-  };
-  transactions.push(tx);
+  const { rows: [countRow] } = await pool.query(
+    `SELECT COUNT(*) as count
+     FROM transactions
+     WHERE user_id = $1 AND type = 'send'`,
+    [userId]
+  );
 
-  return { success: true, transaction: tx, newBalance: user.balance };
-}
+  const totalSpent = spentRows.reduce((sum, r) => sum + parseFloat(r.total), 0);
+  const totalReceived = parseFloat(receivedRow.total);
 
-function getInsights(userId) {
-  const userTx = transactions.filter(t => t.userId === userId && t.type === 'send');
-  const categories = {};
-  let totalSpent = 0;
-
-  userTx.forEach(tx => {
-    const cat = tx.category || 'other';
-    if (!categories[cat]) categories[cat] = 0;
-    categories[cat] += tx.amount;
-    totalSpent += tx.amount;
-  });
-
-  const categoryList = Object.entries(categories).map(([name, amount]) => ({
-    name,
-    amount,
-    percentage: totalSpent > 0 ? Math.round((amount / totalSpent) * 100) : 0
-  })).sort((a, b) => b.amount - a.amount);
-
-  const received = transactions
-    .filter(t => t.userId === userId && t.type === 'receive')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const categories = spentRows.map(r => ({
+    name: r.category || 'other',
+    amount: parseFloat(r.total),
+    percentage: totalSpent > 0 ? Math.round((parseFloat(r.total) / totalSpent) * 100) : 0
+  }));
 
   return {
     totalSpent,
-    totalReceived: received,
-    categories: categoryList,
-    transactionCount: userTx.length,
-    topCategory: categoryList[0] || null
+    totalReceived,
+    categories,
+    transactionCount: parseInt(countRow.count),
+    topCategory: categories[0] || null
   };
 }
 
 module.exports = {
-  users,
-  transactions,
   getUserByPhone,
   getUserById,
   getTransactions,

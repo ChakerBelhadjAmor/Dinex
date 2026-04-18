@@ -43,20 +43,20 @@ function getFallbackResponse(message) {
     };
   }
 
-  if (msg.includes('balance') || msg.includes('ba9a') || msg.includes('9addech') || msg.includes('kam') || msg.includes('compte') || msg.includes('flous')) {
+  // History check BEFORE balance (since "win sraft flousi" contains "flous")
+  if (msg.includes('historique') || msg.includes('transactions') || msg.includes('win sraft') || msg.includes('sraft')) {
     return {
-      intent: 'CHECK_BALANCE',
-      message: 'Tayeb, taw nchouflek 9addech 3andek fil compte... ⏳',
-      action: { type: 'check_balance', params: {} },
+      intent: 'TRANSACTION_HISTORY',
+      message: 'Haya nchoufou el transactions mta3ek... 📋',
+      action: { type: 'get_transactions', params: {} },
       needsConfirmation: false
     };
   }
 
+  // Send money check
   if (msg.includes('ab3ath') || msg.includes('nab3ath') || msg.includes('b3ath') || msg.includes('transfer') || msg.includes('nheb nab3ath')) {
-    // Try to extract amount
     const amountMatch = msg.match(/(\d+)\s*(dt|dinar|d)/i) || msg.match(/(\d+)/);
     const amount = amountMatch ? parseInt(amountMatch[1]) : null;
-    // Try to extract phone
     const phoneMatch = msg.match(/(\d{8})/);
     const phone = phoneMatch ? phoneMatch[1] : null;
 
@@ -84,11 +84,12 @@ function getFallbackResponse(message) {
     }
   }
 
-  if (msg.includes('historique') || msg.includes('transactions') || msg.includes('win sraft') || msg.includes('sraft')) {
+  // Balance check (after history/send to avoid false matches on "flous")
+  if (msg.includes('balance') || msg.includes('ba9a') || msg.includes('9addech') || msg.includes('kam') || msg.includes('compte') || msg.includes('flous')) {
     return {
-      intent: 'TRANSACTION_HISTORY',
-      message: 'Haya nchoufou el transactions mta3ek... 📋',
-      action: { type: 'get_transactions', params: {} },
+      intent: 'CHECK_BALANCE',
+      message: 'Tayeb, taw nchouflek 9addech 3andek fil compte... ⏳',
+      action: { type: 'check_balance', params: {} },
       needsConfirmation: false
     };
   }
@@ -279,36 +280,43 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     let aiResponse;
+    let usedGemini = false;
 
     if (model && GEMINI_API_KEY) {
-      // Use Gemini
-      const historyKey = userId || 'default';
-      if (!conversations.has(historyKey)) {
-        conversations.set(historyKey, []);
-      }
-      const history = conversations.get(historyKey);
-
-      const prompt = `${SYSTEM_PROMPT}\n\nHistorique mta3 el conversation:\n${history.map(h => `${h.role}: ${h.content}`).join('\n')}\n\nUser: ${message}\n\nJaweb b JSON valide:`;
-
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-
-      // Parse JSON from response
       try {
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          aiResponse = JSON.parse(jsonMatch[0]);
-        } else {
+        // Use Gemini
+        const historyKey = userId || 'default';
+        if (!conversations.has(historyKey)) {
+          conversations.set(historyKey, []);
+        }
+        const history = conversations.get(historyKey);
+
+        const prompt = `${SYSTEM_PROMPT}\n\nHistorique mta3 el conversation:\n${history.map(h => `${h.role}: ${h.content}`).join('\n')}\n\nUser: ${message}\n\nJaweb b JSON valide:`;
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+
+        // Parse JSON from response
+        try {
+          const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            aiResponse = JSON.parse(jsonMatch[0]);
+          } else {
+            aiResponse = { intent: 'GENERAL', message: responseText, action: null, needsConfirmation: false };
+          }
+        } catch {
           aiResponse = { intent: 'GENERAL', message: responseText, action: null, needsConfirmation: false };
         }
-      } catch {
-        aiResponse = { intent: 'GENERAL', message: responseText, action: null, needsConfirmation: false };
-      }
 
-      // Update conversation history
-      history.push({ role: 'user', content: message });
-      history.push({ role: 'assistant', content: aiResponse.message });
-      if (history.length > 20) history.splice(0, 2);
+        // Update conversation history
+        history.push({ role: 'user', content: message });
+        history.push({ role: 'assistant', content: aiResponse.message });
+        if (history.length > 20) history.splice(0, 2);
+        usedGemini = true;
+      } catch (geminiError) {
+        console.error('Gemini API error, falling back:', geminiError.message);
+        aiResponse = getFallbackResponse(message);
+      }
     } else {
       // Fallback
       aiResponse = getFallbackResponse(message);

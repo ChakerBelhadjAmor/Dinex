@@ -16,52 +16,62 @@ app.get('/api/health', (req, res) => {
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { phone, pin } = req.body;
 
   if (!phone) {
     return res.status(400).json({ error: 'Numero telephone obligatoire' });
   }
 
-  const user = store.getUserByPhone(phone);
-  if (!user) {
-    return res.status(404).json({ error: 'Utilisateur introuvable' });
-  }
-
-  // For hackathon: accept any pin or default "1234"
-  if (pin && pin !== user.pin && pin !== '1234') {
-    return res.status(401).json({ error: 'Code PIN incorrect' });
-  }
-
-  const token = generateToken(user);
-  res.json({
-    success: true,
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      phone: user.phone
+  try {
+    const user = await store.getUserByPhone(phone);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur introuvable' });
     }
-  });
+
+    if (pin && pin !== user.pin && pin !== '1234') {
+      return res.status(401).json({ error: 'Code PIN incorrect' });
+    }
+
+    const token = generateToken(user);
+    res.json({
+      success: true,
+      token,
+      user: { id: user.id, name: user.name, phone: user.phone }
+    });
+  } catch (err) {
+    console.error('Login error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
+  }
 });
 
 // ─── WALLET ─────────────────────────────────────────────────────────────────
 
-app.get('/api/wallet/balance', authenticateToken, (req, res) => {
-  const balance = store.getBalance(req.user.id);
-  if (balance === null) {
-    return res.status(404).json({ error: 'Utilisateur introuvable' });
+app.get('/api/wallet/balance', authenticateToken, async (req, res) => {
+  try {
+    const balance = await store.getBalance(req.user.id);
+    if (balance === null) {
+      return res.status(404).json({ error: 'Utilisateur introuvable' });
+    }
+    res.json({ balance, currency: 'DT' });
+  } catch (err) {
+    console.error('Balance error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
   }
-  res.json({ balance, currency: 'DT' });
 });
 
-app.get('/api/wallet/transactions', authenticateToken, (req, res) => {
-  const transactions = store.getTransactions(req.user.id);
-  const limit = parseInt(req.query.limit) || 50;
-  res.json({ transactions: transactions.slice(0, limit) });
+app.get('/api/wallet/transactions', authenticateToken, async (req, res) => {
+  try {
+    const transactions = await store.getTransactions(req.user.id);
+    const limit = parseInt(req.query.limit) || 50;
+    res.json({ transactions: transactions.slice(0, limit) });
+  } catch (err) {
+    console.error('Transactions error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
+  }
 });
 
-app.post('/api/wallet/send', authenticateToken, (req, res) => {
+app.post('/api/wallet/send', authenticateToken, async (req, res) => {
   const { toPhone, amount, category, description } = req.body;
 
   if (!toPhone || !amount) {
@@ -73,15 +83,19 @@ app.post('/api/wallet/send', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'Montant invalide' });
   }
 
-  const result = store.sendMoney(req.user.id, toPhone, numAmount, category, description);
-  if (!result.success) {
-    return res.status(400).json({ error: result.error });
+  try {
+    const result = await store.sendMoney(req.user.id, toPhone, numAmount, category, description);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('Send error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
   }
-
-  res.json(result);
 });
 
-app.post('/api/wallet/add', authenticateToken, (req, res) => {
+app.post('/api/wallet/add', authenticateToken, async (req, res) => {
   const { amount, source } = req.body;
 
   if (!amount) {
@@ -93,29 +107,43 @@ app.post('/api/wallet/add', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'Montant invalide' });
   }
 
-  const result = store.addMoney(req.user.id, numAmount, source);
-  if (!result.success) {
-    return res.status(400).json({ error: result.error });
+  try {
+    const result = await store.addMoney(req.user.id, numAmount, source);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('Add money error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
   }
-
-  res.json(result);
 });
 
 // ─── INSIGHTS ───────────────────────────────────────────────────────────────
 
-app.get('/api/insights/summary', authenticateToken, (req, res) => {
-  const insights = store.getInsights(req.user.id);
-  res.json(insights);
+app.get('/api/insights/summary', authenticateToken, async (req, res) => {
+  try {
+    const insights = await store.getInsights(req.user.id);
+    res.json(insights);
+  } catch (err) {
+    console.error('Insights error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
+  }
 });
 
 // ─── USER LOOKUP (for AI service) ───────────────────────────────────────────
 
-app.get('/api/users/lookup/:phone', authenticateToken, (req, res) => {
-  const user = store.getUserByPhone(req.params.phone);
-  if (!user) {
-    return res.status(404).json({ error: 'Utilisateur introuvable' });
+app.get('/api/users/lookup/:phone', authenticateToken, async (req, res) => {
+  try {
+    const user = await store.getUserByPhone(req.params.phone);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur introuvable' });
+    }
+    res.json({ id: user.id, name: user.name, phone: user.phone });
+  } catch (err) {
+    console.error('Lookup error:', err.message);
+    res.status(500).json({ error: 'Erreur interne' });
   }
-  res.json({ id: user.id, name: user.name, phone: user.phone });
 });
 
 // ─── START ───────────────────────────────────────────────────────────────────

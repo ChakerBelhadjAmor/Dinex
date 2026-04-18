@@ -1,16 +1,22 @@
 version: '3.8'
 
 services:
-  frontend:
-    build: ./frontend
+  db:
+    image: postgres:16-alpine
     ports:
-      - "5173:5173"
+      - "5432:5432"
     environment:
-      - VITE_API_URL=http://localhost:3000
-      - VITE_AI_URL=http://localhost:3001
-    depends_on:
-      - backend
-      - ai-service
+      - POSTGRES_DB=flousna
+      - POSTGRES_USER=flousna
+      - POSTGRES_PASSWORD=flousna123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flousna"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
   backend:
@@ -20,6 +26,14 @@ services:
     environment:
       - PORT=3000
       - JWT_SECRET=flousna-hackathon-secret-2026
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=flousna
+      - DB_USER=flousna
+      - DB_PASSWORD=flousna123
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   ai-service:
@@ -33,3 +47,18 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_AI_URL=http://localhost:3001
+    depends_on:
+      - backend
+      - ai-service
+    restart: unless-stopped
+
+volumes:
+  pgdata:
