@@ -1,6 +1,6 @@
 # Dinex
 
-**"Floussek f jibek, fil telephone"** — Your money in your pocket, in your phone.
+**"Floussek f jibek, fil telephone"** .
 
 A fintech app built for Tunisia, designed to make digital payments feel easier than cash. Inspired by apps like Finari, Dinex targets the ~60% of the Tunisian population that still relies on cash by offering a **chat-first, Tunisian dialect (Derja) experience** that feels like WhatsApp + Banking.
 
