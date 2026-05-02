@@ -81,7 +81,7 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 | **AI Service** | <img src="https://cdn.simpleicons.org/google/4285F4" alt="Google Gemini" title="Google Gemini" width="24" height="24" /> |
 | **Containerization** | <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" title="Docker" width="24" height="24" /> |
 
-Icons include accessible alt text and tooltips, and the labels appear if an icon fails to load.
+Icons are served from the Simple Icons CDN; accessible alt text and tooltips provide labels if an icon fails to load.
 
 ---
 
