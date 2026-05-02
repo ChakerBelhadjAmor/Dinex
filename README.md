@@ -154,14 +154,14 @@ cd Dinex
 The chatbot works without a Gemini key (uses built-in fallback responses in Derja), but for full AI-powered conversations:
 
 ```bash
-# Option A: create a .env file in the repo root
-echo "GEMINI_API_KEY=your_key_here" > .env
+# Option A: add the key to a .env file in the repo root
+printf "GEMINI_API_KEY=your_key_here\n" >> .env
 
 # Option B: export the variable in your shell
 export GEMINI_API_KEY=your_key_here
 ```
 
-Get a free key at https://aistudio.google.com/apikey.
+Get a free key at https://aistudio.google.com/apikey. If you already have a `.env`, just add `GEMINI_API_KEY` to it.
 
 **Step 3: Run everything**
 
@@ -358,8 +358,8 @@ Ahmed (20123456) has the most transaction history and is the best account for de
 | `DB_USER` | backend | No | Database user (default: flousna) |
 | `DB_PASSWORD` | backend | No | Database password (default: flousna123) |
 | `BACKEND_URL` | ai-service | No | Backend URL for AI to call (default: http://localhost:3000, in Docker: http://backend:3000) |
-| `VITE_API_URL` | frontend | No | Backend URL for frontend (local dev default: http://localhost:3000, Docker default: http://localhost:3005) |
-| `VITE_AI_URL` | frontend | No | AI service URL for frontend (local dev default: http://localhost:3001, Docker default: http://localhost:3002) |
+| `VITE_API_URL` | frontend | No | Backend URL for frontend (local dev default: http://localhost:3000, Docker default for host browser: http://localhost:3005) |
+| `VITE_AI_URL` | frontend | No | AI service URL for frontend (local dev default: http://localhost:3001, Docker default for host browser: http://localhost:3002) |
 | `FRONTEND_HOST_PORT` | docker | No | Host port for frontend container (default: 5173) |
 | `BACKEND_HOST_PORT` | docker | No | Host port for backend container (default: 3005) |
 | `AI_HOST_PORT` | docker | No | Host port for AI container (default: 3002) |
