@@ -1,5 +1,9 @@
 # Dinex
 
+<p align="center">
+  <img src="frontend/public/dinex_logo.png" alt="Dinex logo" width="140" />
+</p>
+
 **"Floussek f jibek, fil telephone"** .
 
 A fintech app built for Tunisia, designed to make digital payments feel easier than cash. Inspired by apps like Finari, Dinex targets the ~60% of the Tunisian population that still relies on cash by offering a **chat-first, Tunisian dialect (Derja) experience** that feels like WhatsApp + Banking.
@@ -69,20 +73,22 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18, Vite, React Router, Recharts, Lucide Icons |
-| **Backend** | Node.js, Express, JWT authentication, PostgreSQL (pg) |
-| **Database** | PostgreSQL 16 |
-| **AI Service** | Node.js, Express, Google Gemini API (gemini-2.0-flash) |
-| **Containerization** | Docker, Docker Compose |
+| Layer | Stack |
+|-------|-------|
+| **Frontend** | <span style="position:absolute; left:-10000px;">React, Vite, React Router</span><img src="https://cdn.simpleicons.org/react/61DAFB" alt="React" title="React" width="24" height="24" /> <img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite" title="Vite" width="24" height="24" /> <img src="https://cdn.simpleicons.org/reactrouter/CA4245" alt="React Router" title="React Router" width="24" height="24" /> |
+| **Backend** | <span style="position:absolute; left:-10000px;">Node.js, Express, JSON Web Tokens</span><img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js" title="Node.js" width="24" height="24" /> <img src="https://cdn.simpleicons.org/express/6B7280" alt="Express" title="Express" width="24" height="24" /> <img src="https://cdn.simpleicons.org/jsonwebtokens/F59E0B" alt="JWT" title="JSON Web Tokens" width="24" height="24" /> |
+| **Database** | <span style="position:absolute; left:-10000px;">PostgreSQL</span><img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL" title="PostgreSQL" width="24" height="24" /> |
+| **AI Service** | <span style="position:absolute; left:-10000px;">Google Gemini</span><img src="https://cdn.simpleicons.org/google/4285F4" alt="Google Gemini" title="Google Gemini" width="24" height="24" /> |
+| **Containerization** | <span style="position:absolute; left:-10000px;">Docker</span><img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" title="Docker" width="24" height="24" /> |
+
+Icons are served from the Simple Icons CDN; accessible alt text and tooltips provide labels if an icon fails to load.
 
 ---
 
 ## Project Structure
 
 ```
-fintech_hackathon/
+Dinex/
 ├── frontend/                  # React frontend (Vite)
 │   ├── src/
 │   │   ├── components/
@@ -126,8 +132,6 @@ fintech_hackathon/
 │   └── Dockerfile
 │
 ├── docker-compose.yml         # Orchestrates all 3 services
-├── .env.example               # Environment variable template
-├── prompt.md                  # Original hackathon prompt
 └── README.md                  # This file
 ```
 
@@ -142,7 +146,7 @@ fintech_hackathon/
 **Step 1: Clone / navigate to the project**
 
 ```bash
-cd fintech_hackathon
+cd Dinex
 ```
 
 **Step 2 (Optional): Set up Gemini API key**
@@ -150,12 +154,14 @@ cd fintech_hackathon
 The chatbot works without a Gemini key (uses built-in fallback responses in Derja), but for full AI-powered conversations:
 
 ```bash
-# Copy the example env file
-cp .env.example .env
+# Option A: add this line to a .env file in the repo root
+GEMINI_API_KEY=your_key_here
 
-# Edit .env and add your Gemini API key
-# Get one free at: https://aistudio.google.com/apikey
+# Option B: export the variable in your shell
+export GEMINI_API_KEY=your_key_here
 ```
+
+Get a free key at https://aistudio.google.com/apikey. If you already have a `.env`, just add `GEMINI_API_KEY` to it.
 
 **Step 3: Run everything**
 
@@ -163,13 +169,15 @@ cp .env.example .env
 docker-compose up --build
 ```
 
-That's it. The app will be available at:
+That's it. The app will be available at (Docker defaults):
 
 | Service | URL |
 |---------|-----|
 | **Frontend (App)** | http://localhost:5173 |
-| **Backend API** | http://localhost:3000 |
-| **AI Service** | http://localhost:3001 |
+| **Backend API** | http://localhost:3005 |
+| **AI Service** | http://localhost:3002 |
+
+Ports can be customized via `FRONTEND_HOST_PORT`, `BACKEND_HOST_PORT`, and `AI_HOST_PORT` in your environment or `.env` file.
 
 **To stop:**
 
@@ -350,8 +358,11 @@ Ahmed (20123456) has the most transaction history and is the best account for de
 | `DB_USER` | backend | No | Database user (default: flousna) |
 | `DB_PASSWORD` | backend | No | Database password (default: flousna123) |
 | `BACKEND_URL` | ai-service | No | Backend URL for AI to call (default: http://localhost:3000, in Docker: http://backend:3000) |
-| `VITE_API_URL` | frontend | No | Backend URL for frontend (default: http://localhost:3000) |
-| `VITE_AI_URL` | frontend | No | AI service URL for frontend (default: http://localhost:3001) |
+| `VITE_API_URL` | frontend | No | Backend URL compiled into the frontend (local dev default: http://localhost:3000, Docker default uses host browser URL: http://localhost:3005; rebuild frontend to apply changes) |
+| `VITE_AI_URL` | frontend | No | AI service URL compiled into the frontend (local dev default: http://localhost:3001, Docker default uses host browser URL: http://localhost:3002; rebuild frontend to apply changes) |
+| `FRONTEND_HOST_PORT` | docker | No | Host port for frontend container (default: 5173) |
+| `BACKEND_HOST_PORT` | docker | No | Host port for backend container (default: 3005) |
+| `AI_HOST_PORT` | docker | No | Host port for AI container (default: 3002) |
 
 ---
 
