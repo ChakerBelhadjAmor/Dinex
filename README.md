@@ -81,7 +81,7 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 | **AI Service** | <img src="https://cdn.simpleicons.org/google/4285F4" alt="Google Gemini" title="Google Gemini" width="24" height="24" /> |
 | **Containerization** | <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" title="Docker" width="24" height="24" /> |
 
-Icons include accessible alt text and tooltips for quick identification.
+Icons include accessible alt text and tooltips, and the labels appear if an icon fails to load.
 
 ---
 
@@ -169,7 +169,7 @@ Get a free key at https://aistudio.google.com/apikey.
 docker-compose up --build
 ```
 
-That's it. The app will be available at:
+That's it. The app will be available at (Docker defaults):
 
 | Service | URL |
 |---------|-----|
@@ -358,8 +358,8 @@ Ahmed (20123456) has the most transaction history and is the best account for de
 | `DB_USER` | backend | No | Database user (default: flousna) |
 | `DB_PASSWORD` | backend | No | Database password (default: flousna123) |
 | `BACKEND_URL` | ai-service | No | Backend URL for AI to call (default: http://localhost:3000, in Docker: http://backend:3000) |
-| `VITE_API_URL` | frontend | No | Backend URL for frontend (local default: http://localhost:3000, Docker default: http://localhost:3005) |
-| `VITE_AI_URL` | frontend | No | AI service URL for frontend (local default: http://localhost:3001, Docker default: http://localhost:3002) |
+| `VITE_API_URL` | frontend | No | Backend URL for frontend (local dev default: http://localhost:3000, Docker default: http://localhost:3005) |
+| `VITE_AI_URL` | frontend | No | AI service URL for frontend (local dev default: http://localhost:3001, Docker default: http://localhost:3002) |
 | `FRONTEND_HOST_PORT` | docker | No | Host port for frontend container (default: 5173) |
 | `BACKEND_HOST_PORT` | docker | No | Host port for backend container (default: 3005) |
 | `AI_HOST_PORT` | docker | No | Host port for AI container (default: 3002) |
