@@ -75,11 +75,11 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 
 | Layer | Stack |
 |-------|-------|
-| **Frontend** | <img src="https://cdn.simpleicons.org/react/61DAFB" alt="React" title="React" width="24" height="24" /> <img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite" title="Vite" width="24" height="24" /> <img src="https://cdn.simpleicons.org/reactrouter/CA4245" alt="React Router" title="React Router" width="24" height="24" /> |
-| **Backend** | <img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js" title="Node.js" width="24" height="24" /> <img src="https://cdn.simpleicons.org/express/6B7280" alt="Express" title="Express" width="24" height="24" /> <img src="https://cdn.simpleicons.org/jsonwebtokens/F59E0B" alt="JWT" title="JSON Web Tokens" width="24" height="24" /> |
-| **Database** | <img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL" title="PostgreSQL" width="24" height="24" /> |
-| **AI Service** | <img src="https://cdn.simpleicons.org/google/4285F4" alt="Google Gemini" title="Google Gemini" width="24" height="24" /> |
-| **Containerization** | <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" title="Docker" width="24" height="24" /> |
+| **Frontend** | <span style="position:absolute; left:-10000px;">React, Vite, React Router</span><img src="https://cdn.simpleicons.org/react/61DAFB" alt="React" title="React" width="24" height="24" /> <img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite" title="Vite" width="24" height="24" /> <img src="https://cdn.simpleicons.org/reactrouter/CA4245" alt="React Router" title="React Router" width="24" height="24" /> |
+| **Backend** | <span style="position:absolute; left:-10000px;">Node.js, Express, JSON Web Tokens</span><img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js" title="Node.js" width="24" height="24" /> <img src="https://cdn.simpleicons.org/express/6B7280" alt="Express" title="Express" width="24" height="24" /> <img src="https://cdn.simpleicons.org/jsonwebtokens/F59E0B" alt="JWT" title="JSON Web Tokens" width="24" height="24" /> |
+| **Database** | <span style="position:absolute; left:-10000px;">PostgreSQL</span><img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL" title="PostgreSQL" width="24" height="24" /> |
+| **AI Service** | <span style="position:absolute; left:-10000px;">Google Gemini</span><img src="https://cdn.simpleicons.org/google/4285F4" alt="Google Gemini" title="Google Gemini" width="24" height="24" /> |
+| **Containerization** | <span style="position:absolute; left:-10000px;">Docker</span><img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" title="Docker" width="24" height="24" /> |
 
 Icons are served from the Simple Icons CDN; accessible alt text and tooltips provide labels if an icon fails to load.
 
@@ -358,8 +358,8 @@ Ahmed (20123456) has the most transaction history and is the best account for de
 | `DB_USER` | backend | No | Database user (default: flousna) |
 | `DB_PASSWORD` | backend | No | Database password (default: flousna123) |
 | `BACKEND_URL` | ai-service | No | Backend URL for AI to call (default: http://localhost:3000, in Docker: http://backend:3000) |
-| `VITE_API_URL` | frontend | No | Backend URL compiled into the frontend (local dev default: http://localhost:3000, Docker default uses host browser URL: http://localhost:3005) |
-| `VITE_AI_URL` | frontend | No | AI service URL compiled into the frontend (local dev default: http://localhost:3001, Docker default uses host browser URL: http://localhost:3002) |
+| `VITE_API_URL` | frontend | No | Backend URL compiled into the frontend (local dev default: http://localhost:3000, Docker default uses host browser URL: http://localhost:3005; rebuild frontend to apply changes) |
+| `VITE_AI_URL` | frontend | No | AI service URL compiled into the frontend (local dev default: http://localhost:3001, Docker default uses host browser URL: http://localhost:3002; rebuild frontend to apply changes) |
 | `FRONTEND_HOST_PORT` | docker | No | Host port for frontend container (default: 5173) |
 | `BACKEND_HOST_PORT` | docker | No | Host port for backend container (default: 3005) |
 | `AI_HOST_PORT` | docker | No | Host port for AI container (default: 3002) |
