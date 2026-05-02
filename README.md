@@ -76,7 +76,7 @@ A fintech app built for Tunisia, designed to make digital payments feel easier t
 | Layer | Stack |
 |-------|-------|
 | **Frontend** | <img src="https://cdn.simpleicons.org/react/61DAFB" alt="React" width="24" height="24" /> <img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite" width="24" height="24" /> <img src="https://cdn.simpleicons.org/reactrouter/CA4245" alt="React Router" width="24" height="24" /> |
-| **Backend** | <img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js" width="24" height="24" /> <img src="https://cdn.simpleicons.org/express/000000" alt="Express" width="24" height="24" /> <img src="https://cdn.simpleicons.org/jsonwebtokens/000000" alt="JWT" width="24" height="24" /> |
+| **Backend** | <img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js" width="24" height="24" /> <img src="https://cdn.simpleicons.org/express/4B5563" alt="Express" width="24" height="24" /> <img src="https://cdn.simpleicons.org/jsonwebtokens/4B5563" alt="JWT" width="24" height="24" /> |
 | **Database** | <img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL" width="24" height="24" /> |
 | **AI Service** | <img src="https://cdn.simpleicons.org/google/4285F4" alt="Google Gemini" width="24" height="24" /> |
 | **Containerization** | <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" width="24" height="24" /> |
@@ -152,8 +152,11 @@ cd Dinex
 The chatbot works without a Gemini key (uses built-in fallback responses in Derja), but for full AI-powered conversations:
 
 ```bash
-# Create a .env file in the repo root or export this variable
-GEMINI_API_KEY=your_key_here
+# Option A: create a .env file in the repo root
+echo "GEMINI_API_KEY=your_key_here" > .env
+
+# Option B: export the variable in your shell
+export GEMINI_API_KEY=your_key_here
 ```
 
 Get a free key at https://aistudio.google.com/apikey.
@@ -353,8 +356,8 @@ Ahmed (20123456) has the most transaction history and is the best account for de
 | `DB_USER` | backend | No | Database user (default: flousna) |
 | `DB_PASSWORD` | backend | No | Database password (default: flousna123) |
 | `BACKEND_URL` | ai-service | No | Backend URL for AI to call (default: http://localhost:3000, in Docker: http://backend:3000) |
-| `VITE_API_URL` | frontend | No | Backend URL for frontend (default: http://localhost:3000) |
-| `VITE_AI_URL` | frontend | No | AI service URL for frontend (default: http://localhost:3001) |
+| `VITE_API_URL` | frontend | No | Backend URL for frontend (default: http://localhost:3000, Docker: http://localhost:3005) |
+| `VITE_AI_URL` | frontend | No | AI service URL for frontend (default: http://localhost:3001, Docker: http://localhost:3002) |
 | `FRONTEND_HOST_PORT` | docker | No | Host port for frontend container (default: 5173) |
 | `BACKEND_HOST_PORT` | docker | No | Host port for backend container (default: 3005) |
 | `AI_HOST_PORT` | docker | No | Host port for AI container (default: 3002) |
